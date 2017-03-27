@@ -47,10 +47,10 @@ func (r *RedisThief) PullServerInfo(c chan Thief) {
 	result, err := redis.Bytes(r.Connection.Do("INFO"))
 
 	if err != nil {
-		logrus.Warn(err)
+		logrus.Error(err)
 	}
 
-	j := redisParseServerInfo(&result)
+	j := r.redisParseServerInfo(&result)
 	r.ServerInfo = j
 
 	c <- r
@@ -80,13 +80,18 @@ func (r RedisThief) IsConnected() bool {
 }
 
 // This needs to be swapped to a lexer someday
-func redisParseServerInfo(b *[]byte) json.RawMessage {
+func (r RedisThief) redisParseServerInfo(b *[]byte) json.RawMessage {
 	// The map of values that we'll use to convert to JSON
 	bannerMap := make(map[string]map[string]string)
-	var parent string
+
+        // Default server mapping because of redis 2.4 and below
+	parent := "Server"
+        bannerMap[parent] = make(map[string]string) 
 
 	// Redis newlines on \r\n not just \n
 	banner := strings.Split(string(*b), "\r\n")
+        logrus.Info("Getting info for Server: ", r.GetTarget())
+        logrus.Debug("PARSING Banner: ", banner)
 
 	// For every line in the response
 	// loop through and build our resulting JSON structure

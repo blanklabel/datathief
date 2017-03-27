@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+//	"fmt"
 	"io/ioutil"
 
 	"os"
@@ -34,6 +35,7 @@ func init() {
 		logrus.Fatal(err)
 	}
 	logrus.SetOutput(file)
+        logrus.SetLevel(logrus.InfoLevel)
 }
 
 func main() {
@@ -83,8 +85,10 @@ func main() {
 		case server := <-connected:
 
 			if server.IsConnected() {
+				logrus.Info("Connected to: ", server.GetTarget())
 				go server.PullServerInfo(info)
 			} else {
+				logrus.Info("Unable to connect to: ", server.GetTarget())
 				wg.Done()
 			}
 
@@ -93,17 +97,21 @@ func main() {
 			wg.Done()
 			f := make(map[string]interface{})
 			results.GetServerInfo()
+			logrus.Info("Getting results for: ", results.GetTarget())
 			json.Unmarshal(results.GetServerInfo(), &f)
 			switch results.GetTargetType() {
 
 			case "REDIS":
-				s := f["Server"].(map[string]interface{})
-				logrus.WithFields(logrus.Fields{
-					"target":  results.GetTarget(),
-					"os":      s["os"],
-					"version": s["redis_version"],
-					"type":    results.GetTargetType(),
-				}).Info()
+                                // If we were able to pull/parse info about a server
+				if f["Server"] != nil {
+					s := f["Server"].(map[string]interface{})
+					logrus.WithFields(logrus.Fields{
+						"target":  results.GetTarget(),
+						"os":      s["os"],
+						"version": s["redis_version"],
+						"type":    results.GetTargetType(),
+					}).Info()
+				}
 
 			case "MONGO":
 				logrus.WithFields(logrus.Fields{
