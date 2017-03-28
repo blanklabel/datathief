@@ -7,6 +7,7 @@ const (
 	MONGO
 )
 
+// Thief comment todo
 type Thief interface {
 	Connect(chan Thief)
 	PullServerInfo(chan Thief)
@@ -17,6 +18,8 @@ type Thief interface {
 	Close()
 }
 
+// GetThief is a factory to return the proper structure for interacting with
+// a specific datastore type
 func GetThief(thiefType int, server string, port int) Thief {
 	switch thiefType {
 

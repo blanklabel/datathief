@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// RedisThief class for interacting with redis
 type RedisThief struct {
 	Server        string
 	Port          int
@@ -38,7 +39,7 @@ func (r *RedisThief) Connect(c chan Thief) {
 	c <- r
 }
 
-// GetServerInfo Pulls back all information known about the server
+// PullServerInfo Pulls back all information known about the server
 func (r *RedisThief) PullServerInfo(c chan Thief) {
 	// If you're that kid -- we'll connect for ya
 	if !r.Connected {
@@ -57,6 +58,7 @@ func (r *RedisThief) PullServerInfo(c chan Thief) {
 
 }
 
+// GetServerInfo returns banner information
 func (r RedisThief) GetServerInfo() json.RawMessage {
 	return r.ServerInfo
 }
@@ -67,14 +69,17 @@ func (r *RedisThief) Close() {
 	r.Connected = false
 }
 
+// GetTarget returns the target of the scan
 func (r RedisThief) GetTarget() string {
 	return r.Server
 }
 
+// GetTargetType returns the type of target (mongo, redis, etc)
 func (r RedisThief) GetTargetType() string {
 	return r.TargetType
 }
 
+// IsConnected returns a boolian if there is a connection active with the remote host
 func (r RedisThief) IsConnected() bool {
 	return r.Connected
 }
@@ -84,14 +89,14 @@ func (r RedisThief) redisParseServerInfo(b *[]byte) json.RawMessage {
 	// The map of values that we'll use to convert to JSON
 	bannerMap := make(map[string]map[string]string)
 
-        // Default server mapping because of redis 2.4 and below
+	// Default server mapping because of redis 2.4 and below
 	parent := "Server"
-        bannerMap[parent] = make(map[string]string) 
+	bannerMap[parent] = make(map[string]string)
 
 	// Redis newlines on \r\n not just \n
 	banner := strings.Split(string(*b), "\r\n")
-        logrus.Info("Getting info for Server: ", r.GetTarget())
-        logrus.Debug("PARSING Banner: ", banner)
+	logrus.Info("Getting info for Server: ", r.GetTarget())
+	logrus.Debug("PARSING Banner: ", banner)
 
 	// For every line in the response
 	// loop through and build our resulting JSON structure

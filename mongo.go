@@ -9,6 +9,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// MongoThief class for interacting with mongodb
 type MongoThief struct {
 	Server        string
 	Port          int
@@ -38,7 +39,7 @@ func (m *MongoThief) Connect(c chan Thief) {
 	c <- m
 }
 
-// GetServerInfo Pulls back all information known about the server
+// PullServerInfo retrieves all information known about the server
 func (m *MongoThief) PullServerInfo(c chan Thief) {
 	// If you're that kid -- we'll connect for ya
 	if !m.Connected {
@@ -62,6 +63,7 @@ func (m *MongoThief) PullServerInfo(c chan Thief) {
 	c <- m
 }
 
+// GetServerInfo returns banner information
 func (m MongoThief) GetServerInfo() json.RawMessage {
 	return m.ServerInfo
 }
@@ -72,14 +74,17 @@ func (m *MongoThief) Close() {
 	m.Connected = false
 }
 
+// GetTarget returns the target of the scan
 func (m MongoThief) GetTarget() string {
 	return m.Server
 }
 
+// GetTargetType returns the type of target (mongo, redis, etc)
 func (m MongoThief) GetTargetType() string {
 	return m.TargetType
 }
 
+// IsConnected returns a boolian if there is a connection active with the remote host
 func (m MongoThief) IsConnected() bool {
 	return m.Connected
 }

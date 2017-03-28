@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-//	"fmt"
 	"io/ioutil"
 
 	"os"
@@ -18,12 +17,14 @@ import (
 // TODO: Elasticsearch
 // TODO: Some datadumper
 
+// Target Information required to scan a remote host
 type Target struct {
 	Server     string `json: server`
 	Port       int    `json: port`
 	TargetType string `json:"type"`
 }
 
+// Targets list of target structs
 type Targets struct {
 	Targets []Target `json:"targets"`
 }
@@ -35,7 +36,7 @@ func init() {
 		logrus.Fatal(err)
 	}
 	logrus.SetOutput(file)
-        logrus.SetLevel(logrus.InfoLevel)
+	logrus.SetLevel(logrus.InfoLevel)
 }
 
 func main() {
@@ -102,7 +103,7 @@ func main() {
 			switch results.GetTargetType() {
 
 			case "REDIS":
-                                // If we were able to pull/parse info about a server
+				// If we were able to pull/parse info about a server
 				if f["Server"] != nil {
 					s := f["Server"].(map[string]interface{})
 					logrus.WithFields(logrus.Fields{
